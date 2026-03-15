@@ -91,7 +91,6 @@
     <script>
         const playBtn = document.getElementById('playBtn');
         const audio = document.getElementById('bgAudio');
-        const statusText = document.getElementById('audioStatus');
         const bg = document.getElementById('bg');
         let isPlaying = false;
 
@@ -99,19 +98,16 @@
             if (!isPlaying) {
                 audio.play().then(() => {
                     isPlaying = true;
-                    playBtn.textContent = "SILENZIA L'ECO";
-                    statusText.textContent = "L'atmosfera è vibrante";
-                    bg.style.filter = "brightness(0.9) contrast(1.1)";
+                    playBtn.textContent = "STOP MUSICA";
+                    bg.style.filter = "brightness(1.1) contrast(1.1)";
                 }).catch(err => {
                     console.error("Audio playback error:", err);
-                    statusText.textContent = "Interazione richiesta";
                 });
             } else {
                 audio.pause();
                 isPlaying = false;
-                playBtn.textContent = "ATTIVA L'AMBIENTE";
-                statusText.textContent = "Silenzio Sacerdotale";
-                bg.style.filter = "brightness(0.6) contrast(1.1)";
+                playBtn.textContent = "ATTIVA MUSICA";
+                bg.style.filter = "none";
             }
         });
 
