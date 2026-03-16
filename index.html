@@ -37,9 +37,14 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            background: url('lab_bg.jpg') no-repeat center center;
-            background-size: cover;
+            background-color: var(--primary-dark);
             transition: filter 1s ease;
+        }
+
+        #bg-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .master-button {
@@ -79,7 +84,11 @@
     </style>
 </head>
 <body>
-    <div class="background-container" id="bg"></div>
+    <div class="background-container" id="bg">
+        <video id="bg-video" autoplay loop muted playsinline>
+            <source src="A_wideangle_shot_of_a_gothic_wizards_library_with__bdc8723cec.mp4" type="video/mp4">
+        </video>
+    </div>
     <canvas id="dust-canvas"></canvas>
 
     <button class="master-button" id="playBtn">ATTIVA MUSICA</button>
