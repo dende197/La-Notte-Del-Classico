@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Arcaico - La Notte del Classico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #c5a059;
+            --primary-dark: #121212;
+            --glass-bg: rgba(18, 18, 18, 0.7);
+            --accent-glow: rgba(197, 160, 89, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--primary-dark);
+            font-family: 'Montserrat', sans-serif;
+            color: #ffffff;
+        }
+
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-color: var(--primary-dark);
+            transition: filter 1s ease;
+        }
+
+        #bg-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Contenitore pulsanti in alto a destra */
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .master-button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary-gold);
+            padding: 10px 20px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            color: var(--primary-gold);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            white-space: nowrap;
+        }
+
+        .master-button:hover {
+            background: var(--primary-gold);
+            color: var(--primary-dark);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* Ambient particles */
+        #dust-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container" id="bg">
+        <video id="bg-video" autoplay loop muted playsinline>
+            <source src="A_wideangle_shot_of_a_gothic_wizards_library_with__bdc8723cec.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <canvas id="dust-canvas"></canvas>
+
+    <!-- Pulsanti raggruppati -->
+    <div class="controls">
+        <button class="master-button" id="playBtn">ATTIVA MUSICA</button>
+        <button class="master-button" id="fullscreenBtn">⛶ SCHERMO INTERO</button>
+    </div>
+
+    <audio id="bgAudio" loop>
+        <source src="Alchemy Lab Ambience 2 hours (mp3cut.net).mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- MUSICA ---
+        const playBtn = document.getElementById('playBtn');
+        const audio = document.getElementById('bgAudio');
+        const bg = document.getElementById('bg');
+        let isPlaying = false;
+
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playBtn.textContent = "STOP MUSICA";
+                    bg.style.filter = "brightness(1.1) contrast(1.1)";
+                }).catch(err => {
+                    console.error("Audio playback error:", err);
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.textContent = "ATTIVA MUSICA";
+                bg.style.filter = "none";
+            }
+        });
+
+        // --- FULLSCREEN ---
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    fullscreenBtn.textContent = "✕ ESCI DA SCHERMO INTERO";
+                }).catch(err => {
+                    console.error("Fullscreen error:", err);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    fullscreenBtn.textContent = "⛶ SCHERMO INTERO";
+                });
+            }
+        });
+
+        // Sincronizza il testo se l'utente esce con ESC
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.textContent = "⛶ SCHERMO INTERO";
+            }
+        });
+
+        // --- PARTICELLE POLVERE ---
+        const canvas = document.getElementById('dust-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(197, 160, 89, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
